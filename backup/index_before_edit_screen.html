@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>シフトカレンダー</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+    <main class="container">
+        <h1>シフトカレンダー</h1>
+
+        <section class="card upload-card">
+            <h2>写真からシフトを読み取る</h2>
+
+            <form
+                action="/analyze"
+                method="post"
+                enctype="multipart/form-data"
+            >
+                <label for="image">
+                    シフト表の写真
+                </label>
+
+                <input
+                    id="image"
+                    type="file"
+                    name="image"
+                    accept="image/jpeg,image/png,image/webp"
+                    required
+                >
+
+                <label for="target_name">
+                    対象者名
+                </label>
+
+                <input
+                    id="target_name"
+                    type="text"
+                    name="target_name"
+                    value="{{ target_name }}"
+                    placeholder="例：水戸"
+                    required
+                >
+
+                <button type="submit">
+                    写真を解析
+                </button>
+            </form>
+        </section>
+
+        {% if message %}
+        <p class="message">
+            {{ message }}
+        </p>
+        {% endif %}
+
+        {% if shifts %}
+        <section class="card">
+            <div class="result-header">
+                <h2>抽出結果</h2>
+
+                <span>
+                    {{ shifts|length }}件
+                </span>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>日</th>
+                        <th>開始</th>
+                        <th>終了</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for shift in shifts %}
+                    <tr>
+                        <td>
+                            {{ shift.day }}日
+                        </td>
+
+                        <td>
+                            {{ shift.start }}
+                        </td>
+
+                        <td>
+                            {{ shift.end }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+        {% endif %}
+    </main>
+</body>
+</html>

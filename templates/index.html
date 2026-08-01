@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>シフトカレンダー</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+    <main class="container">
+        <h1>シフトカレンダー</h1>
+
+        <section class="card upload-card">
+            <h2>写真からシフトを読み取る</h2>
+
+            <form
+                action="/analyze"
+                method="post"
+                enctype="multipart/form-data"
+                onsubmit="showLoading()"
+            >
+                <div class="date-settings">
+                    <div>
+                        <label for="year">
+                            年
+                        </label>
+
+                        <input
+                            id="year"
+                            type="number"
+                            name="year"
+                            value="{{ year }}"
+                            min="2000"
+                            max="2100"
+                            required
+                        >
+                    </div>
+
+                    <div>
+                        <label for="month">
+                            月
+                        </label>
+
+                        <select
+                            id="month"
+                            name="month"
+                            required
+                        >
+                            {% for number in range(1, 13) %}
+                            <option
+                                value="{{ number }}"
+                                {% if month == number %}
+                                selected
+                                {% endif %}
+                            >
+                                {{ number }}月
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <label for="image">
+                    シフト表の写真
+                </label>
+
+                <input
+                    id="image"
+                    type="file"
+                    name="image"
+                    accept="image/jpeg,image/png,image/webp"
+                    required
+                >
+
+                <label for="target_name">
+                    対象者名
+                </label>
+
+                <input
+                    id="target_name"
+                    type="text"
+                    name="target_name"
+                    value="{{ target_name }}"
+                    placeholder="例：水戸"
+                    required
+                >
+
+                <button
+                    type="submit"
+                    id="analyzeButton"
+                >
+                    写真を解析
+                </button>
+            </form>
+        </section>
+
+        {% if message %}
+        <p class="message">
+            {{ message }}
+        </p>
+        {% endif %}
+
+        {% if shifts %}
+        <section class="card">
+            <div class="result-header">
+                <h2>抽出結果</h2>
+
+                <span>
+                    {{ shifts|length }}件
+                </span>
+            </div>
+
+            <form
+                action="/save"
+                method="post"
+                id="shiftForm"
+            >
+                <input
+                    type="hidden"
+                    name="year"
+                    value="{{ year }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="month"
+                    value="{{ month }}"
+                >
+
+                <div class="table-wrapper">
+                    <table id="shiftTable">
+                        <thead>
+                            <tr>
+                                <th>日</th>
+                                <th>曜日</th>
+                                <th>開始</th>
+                                <th>終了</th>
+                                <th>削除</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="shiftTableBody">
+                            {% for shift in shifts %}
+                            <tr>
+                                <td>
+                                    <select
+                                        name="day"
+                                        class="day-select"
+                                        onchange="updateWeekday(this)"
+                                    >
+                                        {% for day in range(1, 32) %}
+                                        <option
+                                            value="{{ day }}"
+                                            {% if shift.day|int == day %}
+                                            selected
+                                            {% endif %}
+                                        >
+                                            {{ day }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+
+                                <td class="weekday-cell">
+                                    {{ shift.weekday }}
+                                </td>
+
+                                <td>
+                                    <select name="start">
+                                        {% for time in time_options %}
+                                        <option
+                                            value="{{ time }}"
+                                            {% if shift.start == time %}
+                                            selected
+                                            {% endif %}
+                                        >
+                                            {{ time }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+
+                                <td>
+                                    <select name="end">
+                                        {% for time in time_options %}
+                                        <option
+                                            value="{{ time }}"
+                                            {% if shift.end == time %}
+                                            selected
+                                            {% endif %}
+                                        >
+                                            {{ time }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="delete-button"
+                                        onclick="deleteRow(this)"
+                                    >
+                                        削除
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="button-row">
+                    <button
+                        type="button"
+                        class="secondary-button"
+                        onclick="addRow()"
+                    >
+                        ＋ 行追加
+                    </button>
+
+                    <button
+                        type="submit"
+                        formaction="/save"
+                    >
+                        保存
+                    </button>
+
+                    <button
+                        type="submit"
+                        formaction="/calendar"
+                        class="calendar-button"
+                        onclick="return confirmCalendarRegistration()"
+                    >
+                        カレンダー登録
+                    </button>
+                </div>
+            </form>
+
+            <form
+                action="/delete_all"
+                method="post"
+                onsubmit="return confirm('全て削除しますか？')"
+            >
+                <input
+                    type="hidden"
+                    name="year"
+                    value="{{ year }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="month"
+                    value="{{ month }}"
+                >
+
+                <button
+                    type="submit"
+                    class="danger-button"
+                >
+                    全削除
+                </button>
+            </form>
+        </section>
+        {% endif %}
+    </main>
+
+    <div
+        id="loadingOverlay"
+        class="loading-overlay"
+    >
+        <div class="loading-box">
+            <div class="spinner"></div>
+
+            <p id="loadingText">
+                シフト表を解析中です…
+            </p>
+
+            <small>
+                少し時間がかかることがあります
+            </small>
+        </div>
+    </div>
+
+    <script>
+        const YEAR = {{ year }};
+        const MONTH = {{ month }};
+        const TIME_OPTIONS = {{ time_options|tojson }};
+
+        function getWeekday(year, month, day){
+            const labels = [
+                "日",
+                "月",
+                "火",
+                "水",
+                "木",
+                "金",
+                "土"
+            ];
+
+            const date = new Date(
+                Number(year),
+                Number(month) - 1,
+                Number(day)
+            );
+
+            return labels[date.getDay()];
+        }
+
+        function updateWeekday(selectElement){
+            const row = selectElement.closest("tr");
+
+            const weekdayCell =
+                row.querySelector(".weekday-cell");
+
+            weekdayCell.textContent = getWeekday(
+                YEAR,
+                MONTH,
+                selectElement.value
+            );
+        }
+
+        function deleteRow(button){
+            const row = button.closest("tr");
+            row.remove();
+        }
+
+        function makeDayOptions(){
+            let html = "";
+
+            for(let day = 1; day <= 31; day++){
+                html += `
+                    <option value="${day}">
+                        ${day}
+                    </option>
+                `;
+            }
+
+            return html;
+        }
+
+        function makeTimeOptions(){
+            return TIME_OPTIONS
+                .map(time => `
+                    <option value="${time}">
+                        ${time}
+                    </option>
+                `)
+                .join("");
+        }
+
+        function addRow(){
+            const body =
+                document.getElementById("shiftTableBody");
+
+            const row =
+                document.createElement("tr");
+
+            row.innerHTML = `
+                <td>
+                    <select
+                        name="day"
+                        class="day-select"
+                        onchange="updateWeekday(this)"
+                    >
+                        ${makeDayOptions()}
+                    </select>
+                </td>
+
+                <td class="weekday-cell">
+                    ${getWeekday(YEAR, MONTH, 1)}
+                </td>
+
+                <td>
+                    <select name="start">
+                        ${makeTimeOptions()}
+                    </select>
+                </td>
+
+                <td>
+                    <select name="end">
+                        ${makeTimeOptions()}
+                    </select>
+                </td>
+
+                <td>
+                    <button
+                        type="button"
+                        class="delete-button"
+                        onclick="deleteRow(this)"
+                    >
+                        削除
+                    </button>
+                </td>
+            `;
+
+            body.appendChild(row);
+        }
+
+        function showLoading(){
+            const button =
+                document.getElementById("analyzeButton");
+
+            const overlay =
+                document.getElementById("loadingOverlay");
+
+            const loadingText =
+                document.getElementById("loadingText");
+
+            if(button){
+                button.disabled = true;
+                button.textContent = "解析中…";
+            }
+
+            loadingText.textContent =
+                "シフト表を解析中です…";
+
+            overlay.style.display = "flex";
+        }
+
+        function confirmCalendarRegistration(){
+            const confirmed = confirm(
+                "表示中のシフトをGoogleカレンダーへ登録しますか？"
+            );
+
+            if(!confirmed){
+                return false;
+            }
+
+            const overlay =
+                document.getElementById("loadingOverlay");
+
+            const loadingText =
+                document.getElementById("loadingText");
+
+            loadingText.textContent =
+                "Googleカレンダーへ登録中です…";
+
+            overlay.style.display = "flex";
+
+            return true;
+        }
+    </script>
+</body>
+</html>
