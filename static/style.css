@@ -33,8 +33,7 @@ h2 {
     padding: 20px;
     background: white;
     border-radius: 14px;
-    box-shadow: 0 3px 14px
-        rgba(0, 0, 0, 0.08);
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.08);
 }
 
 .upload-card {
@@ -50,7 +49,8 @@ label {
     font-weight: bold;
 }
 
-input {
+input,
+select {
     width: 100%;
     padding: 11px;
     border: 1px solid #bbb;
@@ -75,18 +75,17 @@ button:hover {
     opacity: 0.9;
 }
 
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
 .message {
     padding: 12px 16px;
     border-radius: 9px;
     background: #e8f5e9;
     color: #176b23;
     font-weight: bold;
-}
-
-.result-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
 }
 
 table {
@@ -105,53 +104,14 @@ th {
     background: #eeeeee;
 }
 
-@media (max-width: 600px) {
-    .container {
-        width: min(100% - 16px, 900px);
-        padding-top: 12px;
-    }
-
-    .card {
-        padding: 14px;
-    }
-
-    th,
-    td {
-        padding: 9px 5px;
-    }
-}
 .date-settings {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
 }
 
-.date-settings div {
-    display: grid;
-    gap: 8px;
-}
-
-select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #bbb;
-    border-radius: 8px;
-    background: white;
-    font-size: 16px;
-}
-
 .table-wrapper {
     overflow-x: auto;
-}
-
-.button-row {
-    display: flex;
-    gap: 12px;
-    margin-top: 16px;
-}
-
-.button-row button {
-    flex: 1;
 }
 
 .secondary-button {
@@ -171,19 +131,6 @@ select {
     background: #c62828;
 }
 
-@media (max-width: 600px) {
-    .date-settings {
-        grid-template-columns: 1fr;
-    }
-
-    table {
-        min-width: 620px;
-    }
-
-    .button-row {
-        flex-direction: column;
-    }
-}
 .loading-overlay {
     display: none;
     position: fixed;
@@ -230,10 +177,194 @@ select {
     }
 }
 
-button:disabled {
-    cursor: not-allowed;
-    opacity: 0.65;
+.app-header {
+    margin-bottom: 22px;
+    text-align: center;
 }
+
+.app-header h1 {
+    margin-bottom: 6px;
+}
+
+.app-subtitle {
+    margin: 0;
+    color: #667085;
+}
+
+.account-card {
+    padding: 16px 20px;
+}
+
+.account-status {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.account-status h2 {
+    margin: 0 0 5px;
+    font-size: 17px;
+}
+
+.login-status {
+    margin: 0;
+    font-size: 14px;
+}
+
+.logged-in {
+    color: #188038;
+}
+
+.logged-out {
+    color: #667085;
+}
+
+.google-login-button,
+.logout-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 9px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.google-login-button {
+    background: #ffffff;
+    color: #202124;
+    border: 1px solid #dadce0;
+}
+
+.logout-button {
+    margin: 0;
+    background: #eef2f6;
+    color: #344054;
+}
+
+.section-heading {
+    display: flex;
+    gap: 13px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.section-heading h2 {
+    margin: 0 0 5px;
+}
+
+.section-heading p {
+    margin: 0;
+    color: #667085;
+    font-size: 14px;
+}
+
+.step-number {
+    display: inline-flex;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #1976d2;
+    color: white;
+    font-weight: 700;
+}
+
+.field-group {
+    display: grid;
+    gap: 8px;
+}
+
+.field-help {
+    color: #667085;
+    font-size: 13px;
+}
+
+.primary-button {
+    width: 100%;
+}
+
+.result-count {
+    margin-bottom: 14px;
+    color: #344054;
+    font-weight: 700;
+}
+
+.edit-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.save-button {
+    background: #1976d2;
+}
+
+.calendar-registration {
+    margin-top: 24px;
+    padding: 20px;
+    border: 1px solid #c8e6c9;
+    border-radius: 12px;
+    background: #f3fbf4;
+}
+
+.compact-heading {
+    margin-bottom: 16px;
+}
+
 .calendar-button {
-    background: #2e7d32;
+    width: 100%;
+    margin: 0;
+    background: #188038;
+}
+
+@media (max-width: 600px) {
+    .container {
+        width: min(100% - 16px, 900px);
+        padding-top: 12px;
+    }
+
+    .card {
+        padding: 14px;
+    }
+
+    .date-settings {
+        grid-template-columns: 1fr;
+    }
+
+    table {
+        min-width: 620px;
+    }
+
+    th,
+    td {
+        padding: 9px 5px;
+    }
+
+    .account-status {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .account-status form,
+    .google-login-button,
+    .logout-button {
+        width: 100%;
+    }
+
+    .edit-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .calendar-registration {
+        padding: 15px;
+    }
 }
